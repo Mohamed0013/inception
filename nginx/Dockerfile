@@ -1,6 +1,6 @@
-FROM debian:bullseye
+FROM debian:bookworm
 
-# Update the package list, upgrade installed packages, and install NGINX and OpenSSL
+# Update the package list and install NGINX and OpenSSL
 RUN apt update -y && apt install --no-install-recommends -y nginx openssl gettext
 
 # Create directories for certificates
@@ -9,6 +9,7 @@ RUN mkdir -p /etc/ssl/certs /etc/ssl/private
 # Copy the NGINX site configuration file and the script
 COPY ./conf/default /etc/nginx/sites-enabled/default
 COPY ./tools/server.sh .
+
 # Ensure the script is executable
 RUN chmod +x server.sh
 

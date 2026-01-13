@@ -1,29 +1,22 @@
-FROM debian:bullseye
+FROM debian:bookworm
 
-# Install required packages
-RUN apt update && apt install -y \
-    curl \
-    php7.4-fpm \
-    php7.4-mysql \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y curl php8.2-fpm php8.2-mysql
 
-# Install WP-CLI
-RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-    && chmod +x wp-cli.phar \
-    && mv wp-cli.phar /usr/local/bin/wp
+# downloading the WordPress CLI
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+RUN chmod +x wp-cli.phar
+RUN mv wp-cli.phar /usr/local/bin/wp
 
-# Configure PHP-FPM to listen on TCP port 9000 instead of Unix socket
-RUN sed -i 's|^listen = .*|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf
+# configure PHP-FPM to listen on port 9000
+RUN sed -i 's|^listen = .*|listen = 9000|' /etc/php/8.2/fpm/pool.d/www.conf
+#Without -i, sed would only show the new content without saving it.
+COPY ./tools/set-up.sh .
+RUN chmod +x set-up.sh
 
-# Copy startup script
-COPY ./tools/set-up.sh /set-up.sh
-RUN chmod +x /set-up.sh
+# Set the working directory
+WORKDIR /var/www/html/
 
-# WordPress directory
-WORKDIR /var/www/html
-
-# PHP-FPM port
+# Expose port 9000 for PHP-FPM
 EXPOSE 9000
 
-# Start container
 CMD ["/set-up.sh"]

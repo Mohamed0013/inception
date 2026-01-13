@@ -1,20 +1,18 @@
-#!/bin/bash
+#!/usr/bin/bash
 
-set -e
+# Start MariaDB
+service mariadb start
 
-# Initialize database only if it does not already exist
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-	echo "Initializing MariaDB database..."
+# Wait for MariaDB to start
+sleep 5
 
-	mysqld --user=mysql --bootstrap <<EOF
-CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;
-CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_USER_PWD}';
-GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%';
-FLUSH PRIVILEGES;
-EOF
+# Create database and user if they do not exist
+mysql -e "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;"
+mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_USER_PWD';"  #in mysql and mariadb user is indentified by username@host so we did username@anyhost
+mysql -e "GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'%';"   #db_user could do anything in the database with all its tables
 
-	echo "MariaDB initialization complete."
-fi
+# Stop MariaDB
+service mariadb stop
 
-# Start MariaDB in foreground as PID 1
-exec mysqld --user=mysql
+# Start the MariaDB daemon
+exec mysqld
