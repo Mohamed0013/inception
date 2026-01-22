@@ -1,0 +1,68 @@
+services:
+  wordpress:
+    build: ./requirements/wordpress/
+    image: wordpress:1337
+    container_name: wordpress
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html/
+    networks:
+      - inception
+    secrets:
+      - db_password
+      - wp_admin_password
+      - wp_user_password
+    restart: always
+
+  nginx:
+    build: ./requirements/nginx/
+    image: nginx:1337
+    container_name: nginx
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html/
+    ports:
+      - 443:443
+    networks:
+      - inception
+    restart: always
+
+  mariadb:
+    build: ./requirements/mariadb/
+    image: mariadb:1337
+    container_name: mariadb
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/mysql/
+    networks:
+      - inception
+    secrets:
+      - db_password
+    restart: always
+
+networks:
+  inception:
+
+volumes:
+  db:
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/mohdahma/data/db/
+
+  wordpress:
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/mohdahma/data/wordpress/
+
+secrets:
+  db_password:
+    file: ../secrets/db_password.txt
+  wp_admin_password:
+    file: ../secrets/wp_admin_password.txt
+  wp_user_password:
+    file: ../secrets/wp_user_password.txt
