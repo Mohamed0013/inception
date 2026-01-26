@@ -13,5 +13,6 @@ clean:
 	docker compose -f ./srcs/docker-compose.yml down
 
 fclean:
-	docker system prune -a -f
-	sudo rm -rf /home/mohdahma/data/wordpress/ /home/mohdahma/data/db/
+	docker compose down -v --remove-orphans || true
+	docker system prune -a -f --volumes
+	sudo rm -rf /home/mohdahma/data/wordpress /home/mohdahma/data/db

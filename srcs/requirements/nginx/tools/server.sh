@@ -36,6 +36,6 @@ chown -R www-data:www-data /var/www/html/
 
 # Start NGINX
 echo "Starting nginx..."
-nginx -g "daemon off;"
+exec nginx -g "daemon off;"
 #when you run nginx simply nginx forks into a background daemon and docker thinks the pid1 is finished and the container die.
 # (it runs by default with daemon on) -g allows you to pass global directives to Nginx from the command line.

@@ -1,7 +1,7 @@
 server
 {
     listen 443 ssl;
-    server_name localhost ${LOGIN}.42.fr;
+    server_name ${LOGIN}.42.fr localhost;
 
     root /var/www/html;
 
