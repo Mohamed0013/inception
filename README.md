@@ -4,7 +4,7 @@
 
 ## Description
 
-**Inception** is a system administration and containerization project from the 42 curriculum.  
+**Inception** is a system administration and containerization project from the 42 curriculum.
 The goal of this project is to design and deploy a complete web infrastructure using **Docker** and **Docker Compose**, following strict rules related to security, isolation, and service orchestration.
 
 The infrastructure is composed of multiple services running in separate containers:
@@ -37,17 +37,18 @@ Each service runs in its own container, communicates through Docker networks, an
 
 Clone the repository:
 ```bash
-git clone https://github.com/mohdahma/inception.git
+git clone repo link
 cd inception
 Configure environment variables:
 
+cd srcs
 cp .env.example .env
 
 Edit .env with your values (domain, passwords, paths).
 
 
-Build and Run
-docker compose up --build
+Build and Run :
+make
 
 Access the Website
 
@@ -166,7 +167,7 @@ No service runs as root unless required
 
 
 
-Author
+Author :
 
-mohdahma
-42 Network
+Mohamed Dahmane (mohdahma)
+42 Network 1337 morocco
