@@ -1,18 +1,59 @@
-all :
-	mkdir -p /home/mohdahma/data/db
-	mkdir -p /home/mohdahma/data/wordpress
-	docker compose -f ./srcs/docker-compose.yml up --build
+.PHONY: all start stop clean fclean re logs
 
-start:
-	docker compose -f ./srcs/docker-compose.yml up -d
+DATA_DIR_DB=/home/mohdahma/data/db
+DATA_DIR_WP=/home/mohdahma/data/wordpress
+COMPOSE_FILE=./srcs/docker-compose.yml
+
+all: $(DATA_DIR_DB) $(DATA_DIR_WP)
+    docker compose -f $(COMPOSE_FILE) up --build
+
+$(DATA_DIR_DB):
+    mkdir -p $@
+
+$(DATA_DIR_WP):
+    mkdir -p $@
+
+start: $(DATA_DIR_DB) $(DATA_DIR_WP)
+    docker compose -f $(COMPOSE_FILE) up -d
 
 stop:
-	docker compose -f ./srcs/docker-compose.yml down
+    docker compose -f $(COMPOSE_FILE) down
 
-clean:
-	docker compose -f ./srcs/docker-compose.yml down
+clean: stop
+    docker compose -f $(COMPOSE_FILE) down
 
-fclean:
-	docker compose down -v --remove-orphans || true
-	docker system prune -a -f --volumes
-	sudo rm -rf /home/mohdahma/data/wordpress /home/mohdahma/data/db
+fclean: stop
+    docker compose -f $(COMPOSE_FILE) down -v --remove-orphans
+    docker system prune -af --volumes
+    sudo rm -rf $(DATA_DIR_WP) $(DATA_DIR_DB)
+
+re: fclean all
+
+logs:
+    docker compose -f $(COMPOSE_FILE) logs -f
+
+logs-wp:
+    docker compose -f $(COMPOSE_FILE) logs -f wordpress
+
+logs-nginx:
+    docker compose -f $(COMPOSE_FILE) logs -f nginx
+
+logs-db:
+    docker compose -f $(COMPOSE_FILE) logs -f mariadb
+
+ps:
+    docker compose -f $(COMPOSE_FILE) ps
+
+help:
+    @echo "Available targets:"
+    @echo "  make all       - Build and start all services"
+    @echo "  make start     - Start services (requires existing images)"
+    @echo "  make stop      - Stop all services"
+    @echo "  make clean     - Stop services and remove containers"
+    @echo "  make fclean    - Remove everything including data"
+    @echo "  make re        - Clean rebuild (fclean + all)"
+    @echo "  make logs      - View all service logs"
+    @echo "  make logs-wp   - View WordPress logs"
+    @echo "  make logs-nginx- View NGINX logs"
+    @echo "  make logs-db   - View MariaDB logs"
+    @echo "  make ps        - Show running containers"
