@@ -44,17 +44,57 @@ Configure environment variables:
 cd srcs
 cp .env.example .env
 
-Edit .env with your values (domain, passwords, paths).
+⚠️ **Important**: Before editing `.env`, ensure these values match your system:
 
+```bash
+nano .env
+```
 
-Build and Run :
+**Critical variables that must match your system:**
+
+| Variable | Must Match                 | Example                   |
+|----------|----------------------------|---------------------------|
+| `LOGIN`  | Your actual login name     | `mohdahma`                |
+| `WP_URL` | Domain in `/etc/hosts`     | `https://mohdahma.42.fr`  |
+| `DB_HOST`| Service name (leave as-is) | `mariadb`                 |
+| `DB_NAME`| Service name (leave as-is) | `wordpress`               |
+
+**Before starting, ensure:**
+
+1. Update `/etc/hosts` with your `LOGIN`:
+   ```bash
+   sudo nano /etc/hosts
+   # Add this line:
+   127.0.0.1 mohdahma.42.fr
+   ```
+
+2. Make sure `.env` has matching values:
+   ```env
+   LOGIN=mohdahma
+   WP_URL=https://mohdahma.42.fr
+   ```
+
+3. Update secret passwords:
+   ```bash
+   # Edit these files with secure passwords
+   nano ../secrets/db_password.txt
+   nano ../secrets/wp_admin_password.txt
+   nano ../secrets/wp_user_password.txt
+   ```
+
+**Build and Run:**
+
+```bash
 make
+```
 
-Access the Website
+**Access the Website**
 
 Open your browser and visit:
 
+```
 https://mohdahma.42.fr
+```
 
 ⚠️ A browser warning is expected because a self-signed TLS certificate is used.
 
