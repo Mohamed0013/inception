@@ -2,10 +2,13 @@
 
 ## Project Overview
 
-This is a Docker Compose-based infrastructure project containing three main services:
+This is a Docker Compose-based infrastructure project containing six services:
 - **WordPress** (PHP-FPM) on port 9000
 - **NGINX** (Reverse Proxy) on port 443
 - **MariaDB** (Database) on port 3306
+- **Redis** (Cache) on port 6379
+- **Adminer** (Database Admin) on port 9001
+- **Static Website** (Portfolio) on port 80
 
 Services communicate through a custom Docker network and persist data using Docker volumes.
 
@@ -47,19 +50,32 @@ docker compose --version
         ├── mariadb/
         │   ├── Dockerfile
         │   ├── conf/
-        │   │   └── 50-server.cnf     # MariaDB configuration
+        │   │   └── 50-server.cnf
         │   └── tools/
-        │       └── create_db.sh      # Database initialization script
+        │       └── create_db.sh
         ├── nginx/
         │   ├── Dockerfile
         │   ├── conf/
-        │   │   └── default           # NGINX site configuration
+        │   │   └── default
         │   └── tools/
-        │       └── server.sh         # SSL setup and NGINX start script
-        └── wordpress/
+        │       └── server.sh
+        ├── wordpress/
+        │   ├── Dockerfile
+        │   └── tools/
+        │       └── set-up.sh
+        ├── redis/
+        │   └── Dockerfile
+        ├── adminer/
+        │   ├── Dockerfile
+        │   └── conf/
+        │       └── index.php
+        └── static/
             ├── Dockerfile
-            └── tools/
-                └── set-up.sh         # WordPress setup script
+            ├── conf/
+            │   └── default
+            └── html/
+                ├── index.html
+                └── style.css
 ```
 
 ---
@@ -97,14 +113,12 @@ SSL_CERTIFICATE_KEY=/etc/ssl/private/nginx.key
 # Database Settings
 DB_HOST=mariadb
 DB_NAME=wordpress
-DB_USER=your_db_user
-DB_PASS=your_db_password
+DB_USER=wordpress
 
 # WordPress Settings
 WP_URL=https://your_domain_here
 WP_TITLE=Your Site Title
 WP_ADMIN=admin_user
-WP_ADMIN_PASSWORD=secure_password
 WP_ADMIN_EMAIL=admin@example.com
 ```
 
@@ -207,10 +221,7 @@ docker compose -f ./srcs/docker-compose.yml down
 docker ps
 ```
 
-Expected output should show:
-- `wordpress` container
-- `nginx` container
-- `mariadb` container
+Expected output should show all six containers.
 
 ### View Container Logs
 
@@ -222,6 +233,9 @@ docker compose -f ./srcs/docker-compose.yml logs
 docker compose -f ./srcs/docker-compose.yml logs wordpress
 docker compose -f ./srcs/docker-compose.yml logs nginx
 docker compose -f ./srcs/docker-compose.yml logs mariadb
+docker compose -f ./srcs/docker-compose.yml logs redis
+docker compose -f ./srcs/docker-compose.yml logs adminer
+docker compose -f ./srcs/docker-compose.yml logs static
 
 # Follow logs in real-time
 docker compose -f ./srcs/docker-compose.yml logs -f wordpress
@@ -238,6 +252,9 @@ docker exec -it mariadb /bin/bash
 
 # Access NGINX container shell
 docker exec -it nginx /bin/bash
+
+# Access Redis CLI
+docker exec -it redis redis-cli
 ```
 
 ### View Container Details
@@ -322,12 +339,14 @@ sudo ls /home/mohdahma/data/db/mysql/wordpress/
 - **Startup Script**: [srcs/requirements/wordpress/tools/set-up.sh](srcs/requirements/wordpress/tools/set-up.sh)
 
 **What the startup script does:**
-1. Waits for MariaDB to be ready
-2. Downloads WordPress core
-3. Creates `wp-config.php` with database credentials
-4. Runs WordPress installation
-5. Sets proper file permissions
-6. Starts PHP-FPM
+1. Reads passwords from Docker secrets
+2. Waits for MariaDB to be ready
+3. Downloads WordPress core
+4. Creates `wp-config.php` with database credentials
+5. Runs WordPress installation
+6. Creates author user account
+7. Sets proper file permissions
+8. Starts PHP-FPM
 
 ### NGINX Container
 
@@ -362,11 +381,58 @@ sudo ls /home/mohdahma/data/db/mysql/wordpress/
 - **Startup Script**: [srcs/requirements/mariadb/tools/create_db.sh](srcs/requirements/mariadb/tools/create_db.sh)
 
 **What the startup script does:**
-1. Reads database password from Docker secrets
+1. Creates `/run/mysqld` directory with proper permissions
 2. Initializes MariaDB if not already initialized
-3. Creates database and user
-4. Sets proper permissions
-5. Starts MariaDB in foreground
+3. Starts MariaDB temporarily in background
+4. Creates database and user with proper privileges
+5. Shuts down temporary server
+6. Starts MariaDB in foreground as main process
+
+### Redis Container
+
+**File**: [srcs/requirements/redis/Dockerfile](srcs/requirements/redis/Dockerfile)
+
+- **Base Image**: Debian Bookworm
+- **Key Components**: Redis server
+- **Port**: 6379 (internal, not exposed)
+- **Purpose**: Caches WordPress data for performance
+
+**What happens on startup:**
+1. Starts Redis server
+2. Listens on all network interfaces (`0.0.0.0`)
+3. Accessible to WordPress container via Docker network
+
+### Adminer Container
+
+**File**: [srcs/requirements/adminer/Dockerfile](srcs/requirements/adminer/Dockerfile)
+
+- **Base Image**: Debian Bookworm
+- **Key Components**: PHP 8.2-FPM, Adminer
+- **Port**: 9001 (internal, not exposed)
+- **Purpose**: Web-based database management tool
+
+**What happens on startup:**
+1. Installs PHP-FPM and database drivers
+2. Downloads Adminer (single PHP file)
+3. Configures PHP-FPM on port 9001
+4. Sets proper file permissions
+5. Starts PHP-FPM in foreground
+
+### Static Website Container
+
+**File**: [srcs/requirements/static/Dockerfile](srcs/requirements/static/Dockerfile)
+
+- **Base Image**: Debian Bookworm
+- **Key Components**: NGINX
+- **Port**: 80 (HTTP, exposed on port 8080)
+- **Files**: [index.html](srcs/requirements/static/html/index.html), [style.css](srcs/requirements/static/html/style.css)
+
+**What happens on startup:**
+1. Removes default NGINX config
+2. Applies custom NGINX configuration
+3. Copies HTML/CSS files to `/var/www/static`
+4. Sets proper file permissions
+5. Starts NGINX in foreground
 
 ---
 
@@ -381,7 +447,9 @@ docker network inspect inception
 # All containers can reach each other by service name:
 # - wordpress:9000 (from NGINX perspective)
 # - mariadb:3306 (from WordPress perspective)
-# - nginx:443 (from external perspective)
+# - redis:6379 (from WordPress perspective)
+# - adminer:9001 (for database management)
+# - static:80 (for portfolio site)
 ```
 
 ---
@@ -436,6 +504,10 @@ docker compose -f ./srcs/docker-compose.yml logs
    - Check directory permissions: `/etc/ssl/certs/` and `/etc/ssl/private/`
    - View NGINX logs: `docker compose -f ./srcs/docker-compose.yml logs nginx`
 
+4. **Redis fails to start**
+   - Check if port 6379 is available: `lsof -i :6379`
+   - View Redis logs: `docker compose -f ./srcs/docker-compose.yml logs redis`
+
 ### Accessing Container Internals
 
 ```bash
@@ -447,6 +519,9 @@ docker exec -it wordpress ls -la /var/www/html/
 
 # Verify NGINX configuration
 docker exec -it nginx nginx -t
+
+# Check Redis connection
+docker exec -it redis redis-cli ping
 ```
 
 ### Resetting Everything
@@ -480,6 +555,11 @@ make
 1. Edit [srcs/requirements/wordpress/tools/set-up.sh](srcs/requirements/wordpress/tools/set-up.sh)
 2. Rebuild: `docker compose -f ./srcs/docker-compose.yml up --build -d wordpress`
 
+### Modifying Static Website
+
+1. Edit files in [srcs/requirements/static/html/](srcs/requirements/static/html/)
+2. Rebuild: `docker compose -f ./srcs/docker-compose.yml up --build -d static`
+
 ### Changing Database
 
 1. Stop services: `make stop`
@@ -499,8 +579,11 @@ See [srcs/.env.example](srcs/.env.example) for all available variables.
 | `DB_NAME` | Database name | `wordpress` |
 | `DB_USER` | Database user | `wordpress` |
 | `WP_URL` | WordPress site URL | `https://mohdahma.42.fr` |
-| `WP_ADMIN` | Admin username | `admin_user` |
+| `WP_ADMIN` | Admin username | `superuser` |
 | `WP_ADMIN_EMAIL` | Admin email | `admin@42.fr` |
+| `WP_TITLE` | Site title | `Inception` |
+| `SSL_CERTIFICATE` | SSL cert path | `/etc/ssl/certs/nginx.crt` |
+| `SSL_CERTIFICATE_KEY` | SSL key path | `/etc/ssl/private/nginx.key` |
 
 ---
 
@@ -511,6 +594,8 @@ See [srcs/.env.example](srcs/.env.example) for all available variables.
 - [NGINX Documentation](https://nginx.org/en/docs/)
 - [WordPress Documentation](https://wordpress.org/documentation/)
 - [MariaDB Documentation](https://mariadb.com/docs/)
+- [Redis Documentation](https://redis.io/documentation)
+- [Adminer Documentation](https://www.adminer.org/)
 - [OpenSSL Documentation](https://www.openssl.org/docs/)
 
 ---
@@ -522,3 +607,4 @@ See [srcs/.env.example](srcs/.env.example) for all available variables.
 - TLS v1.3 is enforced for security
 - Self-signed certificates are intentionally used for development
 - Volumes are bind mounts for easy local file access
+- No FTP server (simplified bonus services)

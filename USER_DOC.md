@@ -6,6 +6,9 @@ This project provides a complete web infrastructure with:
 - **NGINX** - A secure web server with HTTPS (TLS v1.3)
 - **WordPress** - A content management system for building your website
 - **MariaDB** - A database server that stores all your website data
+- **Redis** - A cache server to improve performance
+- **Adminer** - Database management interface
+- **Static Website** - Portfolio showcase
 
 All services run in isolated Docker containers and communicate securely with each other.
 
@@ -24,7 +27,7 @@ make
 This command will:
 1. Create necessary data directories
 2. Build Docker images
-3. Start all services (WordPress, NGINX, MariaDB)
+3. Start all services (WordPress, NGINX, MariaDB, Redis, Adminer, Static Site)
 
 To start an already-built project in the background:
 
@@ -81,12 +84,18 @@ Sensitive passwords are stored in files inside the `secrets/` directory:
 
 ⚠️ **Important**: Never share these files or commit them to version control.
 
-### Current Credentials
+### WordPress Admin Login
 
-Your credentials are:
-- **DB Password**: Check `secrets/db_password.txt`
-- **WordPress Admin Password**: Check `secrets/wp_admin_password.txt`
-- **WordPress User Password**: Check `secrets/wp_user_password.txt`
+To access WordPress dashboard at `https://mohdahma.42.fr/wp-admin`:
+
+- **Username**: Check `WP_ADMIN` value in `srcs/.env` (default: `superuser`)
+- **Password**: Check `secrets/wp_admin_password.txt`
+
+Example:
+```
+Username: superuser
+Password: Wpadminpass19
+```
 
 ### Changing Credentials
 
@@ -106,14 +115,15 @@ Check if all containers are active:
 
 ```bash
 docker ps
-#Or
-ps #(using Makefile commands)
 ```
 
-You should see three containers:
+You should see six containers:
 - `wordpress` - Running PHP-FPM
 - `nginx` - Running the web server
 - `mariadb` - Running the database
+- `redis` - Running cache server
+- `adminer` - Running database admin interface
+- `static` - Running portfolio website
 
 ### View Service Logs
 
@@ -121,19 +131,26 @@ To see what's happening in the services:
 
 ```bash
 # View all logs
-using Makfile commands  =>  logs
-using docker compose    =>  docker compose -f ./srcs/docker-compose.yml logs
+docker compose -f ./srcs/docker-compose.yml logs
 
 # View specific service logs
-using Makefile commands =>  logs-service_name
-
-using docker compose :
 docker compose -f ./srcs/docker-compose.yml logs wordpress
 docker compose -f ./srcs/docker-compose.yml logs nginx
 docker compose -f ./srcs/docker-compose.yml logs mariadb
+docker compose -f ./srcs/docker-compose.yml logs redis
+docker compose -f ./srcs/docker-compose.yml logs adminer
+docker compose -f ./srcs/docker-compose.yml logs static
 
 # Follow logs in real-time
 docker compose -f ./srcs/docker-compose.yml logs -f
+```
+
+Or use Makefile commands:
+```bash
+make logs              # View all logs
+make logs-wp           # View WordPress logs
+make logs-nginx        # View NGINX logs
+make logs-db           # View MariaDB logs
 ```
 
 ### Check Service Health
@@ -141,6 +158,38 @@ docker compose -f ./srcs/docker-compose.yml logs -f
 - **NGINX**: Should be accessible at `https://mohdahma.42.fr`
 - **WordPress**: Should load the WordPress dashboard
 - **MariaDB**: Verify WordPress can connect (no errors in logs)
+- **Redis**: Should start without errors
+- **Adminer**: Database management available
+- **Static**: Portfolio accessible at `http://localhost:8080`
+
+---
+
+## Bonus Services
+
+### Redis Cache
+
+Redis improves WordPress performance by caching data.
+
+- **Port**: 6379 (internal only, not exposed)
+- **Purpose**: Cache management for faster page loads
+- **Access**: Automatically integrated with WordPress
+
+### Adminer
+
+Database management interface for MariaDB administration.
+
+- **Port**: 9001 (internal)
+- **Purpose**: Manage database without command line
+- **Note**: Can be integrated with NGINX for web access (optional)
+
+### Static Website Portfolio
+
+Simple HTML/CSS showcase website.
+
+- **Port**: 8080 (accessible externally)
+- **URL**: `http://localhost:8080`
+- **Purpose**: Portfolio and resume showcase
+- **Features**: Responsive design, smooth navigation, project display
 
 ---
 

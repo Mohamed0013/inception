@@ -13,6 +13,9 @@ services:
       - db_password
       - wp_admin_password
       - wp_user_password
+    depends_on:
+      - mariadb
+      - redis
     restart: always
 
   nginx:
@@ -27,6 +30,8 @@ services:
       - 443:443
     networks:
       - inception
+    depends_on:
+      - wordpress
     restart: always
 
   mariadb:
@@ -41,6 +46,32 @@ services:
       - inception
     secrets:
       - db_password
+    restart: always
+
+  redis:
+    build: ./requirements/redis/
+    image: redis:1337
+    container_name: redis
+    networks:
+      - inception
+    restart: always
+
+  adminer:
+    build: ./requirements/adminer/
+    image: adminer:1337
+    container_name: adminer
+    networks:
+      - inception
+    restart: always
+
+  static:
+    build: ./requirements/static/
+    image: static:1337
+    container_name: static
+    ports:
+      - 8080:80
+    networks:
+      - inception
     restart: always
 
 networks:
