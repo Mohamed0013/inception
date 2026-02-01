@@ -278,31 +278,45 @@ Volumes are defined in [srcs/docker-compose.yml](srcs/docker-compose.yml):
 ```yaml
 volumes:
   db:
+    driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/mohdahma/data/db/
+      device: /home/mohdahma/data/db
 
   wordpress:
+    driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/mohdahma/data/wordpress/
+      device: /home/mohdahma/data/wordpress
 ```
 
-These are **bind mounts** pointing to host directories.
+These are **Docker named volumes** using **bind mounts** to store data in `/home/mohdahma/data/` on the host machine.
 
 ### Data Locations
 
-- **WordPress Files**: `/home/mohdahma/data/wordpress/`
-  - Contains all WordPress core files, themes, plugins
-  - Shared between WordPress and NGINX containers
+Data is stored directly on the host:
+- **WordPress Volume**: `/home/mohdahma/data/wordpress/` - WordPress files and content
+- **MariaDB Volume**: `/home/mohdahma/data/db/` - Database files
 
-- **MariaDB Files**: `/home/mohdahma/data/db/`
-  - Contains all database files
-  - Persists across container restarts
+### Viewing Volume Information
+
+```bash
+# List all volumes
+docker volume ls
+
+# Inspect a specific volume
+docker volume inspect inception_db
+docker volume inspect inception_wordpress
+
+# View where volume is mounted on host
+docker volume inspect inception_db --format='{{json .Options}}'
+```
 
 ### Accessing Data Directly
+
+You can access data directly on the host without entering containers:
 
 ```bash
 # List WordPress files
@@ -311,7 +325,7 @@ ls -la /home/mohdahma/data/wordpress/
 # List database files
 ls -la /home/mohdahma/data/db/
 
-# View WordPress database files
+# View specific database
 sudo ls /home/mohdahma/data/db/mysql/wordpress/
 ```
 
@@ -321,7 +335,7 @@ sudo ls /home/mohdahma/data/db/mysql/wordpress/
 |--------|------------------|
 | `make stop` | ✅ Data persists |
 | `make clean` | ✅ Data persists |
-| `make fclean` | ❌ Data **deleted** |
+| `make fclean` | ❌ Data **deleted** (with `sudo rm` in Makefile) |
 | Container crash | ✅ Data persists |
 | Image rebuild | ✅ Data persists |
 

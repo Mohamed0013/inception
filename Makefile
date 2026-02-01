@@ -1,8 +1,8 @@
 .PHONY: all start stop clean fclean re logs
 
+COMPOSE_FILE=./srcs/docker-compose.yml
 DATA_DIR_DB=/home/mohdahma/data/db
 DATA_DIR_WP=/home/mohdahma/data/wordpress
-COMPOSE_FILE=./srcs/docker-compose.yml
 
 all: $(DATA_DIR_DB) $(DATA_DIR_WP)
     docker compose -f $(COMPOSE_FILE) up --build
@@ -50,7 +50,7 @@ help:
     @echo "  make start     - Start services (requires existing images)"
     @echo "  make stop      - Stop all services"
     @echo "  make clean     - Stop services and remove containers"
-    @echo "  make fclean    - Remove everything including data"
+    @echo "  make fclean    - Remove everything including volumes"
     @echo "  make re        - Clean rebuild (fclean + all)"
     @echo "  make logs      - View all service logs"
     @echo "  make logs-wp   - View WordPress logs"

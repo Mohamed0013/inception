@@ -79,16 +79,18 @@ networks:
 
 volumes:
   db:
+    driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/mohdahma/data/db/
+      device: /home/mohdahma/data/db
 
   wordpress:
+    driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/mohdahma/data/wordpress/
+      device: /home/mohdahma/data/wordpress
 
 secrets:
   db_password:

@@ -157,16 +157,50 @@ Why Docker networks?
 They allow containers to communicate securely using service names instead of IPs.
 
 
-Docker Volumes vs Bind Mounts
+Docker Volumes with Bind Mounts
 
-| Docker Volumes       | Bind Mounts            |
-| -------------------- | ---------------------- |
-| Managed by Docker    | Managed by host        |
-| Portable             | Host-dependent         |
-| Safer for production | Mainly for development |
+The project uses **Docker named volumes** configured with **bind mounts** to store data in `/home/mohdahma/data/`:
 
-Why volumes?
-They ensure data persistence while remaining portable and Docker-managed.
+```yaml
+volumes:
+  db:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/mohdahma/data/db
+
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/mohdahma/data/wordpress
+```
+
+**Why this approach?**
+- ✅ Uses Docker named volumes (required by subject)
+- ✅ Stores data in `/home/mohdahma/data/` on host (required by subject)
+- ✅ Direct host file access for development
+- ✅ Data persists across container restarts
+
+**Data locations:**
+- `db` volume → `/home/mohdahma/data/db/` on host
+- `wordpress` volume → `/home/mohdahma/data/wordpress/` on host
+
+**Your configuration:**
+```yaml
+volumes:
+  db:
+    driver: local
+  wordpress:
+    driver: local
+```
+
+This means:
+- `db` volume → `/var/lib/mysql/` in MariaDB container
+- `wordpress` volume → `/var/www/html/` in WordPress container
+- Docker manages the actual storage location automatically
 
 
 
