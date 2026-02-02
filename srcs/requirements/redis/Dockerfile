@@ -14,7 +14,7 @@ EXPOSE 6379
 # 6379: Default Redis port for client connections
 # Why: Other containers can connect to Redis on this port
 
-CMD ["redis-server", "--bind", "0.0.0.0"]
+CMD ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]
 # CMD: Default command when container starts
 # redis-server: Starts Redis server
 # --bind 0.0.0.0: Listen on all network interfaces (allows container communication)

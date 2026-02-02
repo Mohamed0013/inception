@@ -62,6 +62,8 @@ services:
     container_name: adminer
     networks:
       - inception
+    ports:
+        - 9001:9001
     restart: always
 
   static:
