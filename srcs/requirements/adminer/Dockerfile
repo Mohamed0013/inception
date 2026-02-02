@@ -3,7 +3,8 @@ FROM debian:bookworm
 RUN apt update && apt install --no-install-recommends -y \
     php8.2-fpm \
     php8.2-mysqli \
-    curl
+    curl \
+    ca-certificates
 
 RUN mkdir -p /var/www/html/adminer
 
