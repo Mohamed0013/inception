@@ -42,6 +42,10 @@ if [ ! -f wp-config.php ]; then
     echo "WORDPRESS: Installing Redis Object Cache plugin..."
     wp plugin install redis-cache --activate --allow-root
 
+    echo "WORDPRESS: Configuring Redis..."
+    wp config set WP_REDIS_HOST redis --allow-root
+    wp config set WP_REDIS_PORT 6379 --allow-root
+
     echo "WORDPRESS: Enabling Redis caching..."
     wp redis enable --allow-root || true
 
