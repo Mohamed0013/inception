@@ -39,6 +39,12 @@ if [ ! -f wp-config.php ]; then
         --user_pass="$WP_USER_PASSWORD" \
         --allow-root
 
+    echo "WORDPRESS: Installing Redis Object Cache plugin..."
+    wp plugin install redis-cache --activate --allow-root
+
+    echo "WORDPRESS: Enabling Redis caching..."
+    wp redis enable --allow-root || true
+
     chown -R www-data:www-data /var/www/html
 
 else
