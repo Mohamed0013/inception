@@ -2,12 +2,11 @@
 
 ## Project Overview
 
-This is a Docker Compose-based infrastructure project containing six services:
+This is a Docker Compose-based infrastructure project containing five services:
 - **WordPress** (PHP-FPM) on port 9000
 - **NGINX** (Reverse Proxy) on port 443
 - **MariaDB** (Database) on port 3306
 - **Redis** (Cache) on port 6379
-- **Adminer** (Database Admin) on port 9001
 - **Static Website** (Portfolio) on port 80
 
 Services communicate through a custom Docker network and persist data using Docker volumes.
@@ -65,10 +64,6 @@ docker compose --version
         │       └── set-up.sh
         ├── redis/
         │   └── Dockerfile
-        ├── adminer/
-        │   ├── Dockerfile
-        │   └── conf/
-        │       └── index.php
         └── static/
             ├── Dockerfile
             ├── conf/
@@ -234,7 +229,6 @@ docker compose -f ./srcs/docker-compose.yml logs wordpress
 docker compose -f ./srcs/docker-compose.yml logs nginx
 docker compose -f ./srcs/docker-compose.yml logs mariadb
 docker compose -f ./srcs/docker-compose.yml logs redis
-docker compose -f ./srcs/docker-compose.yml logs adminer
 docker compose -f ./srcs/docker-compose.yml logs static
 
 # Follow logs in real-time
@@ -416,22 +410,6 @@ sudo ls /home/mohdahma/data/db/mysql/wordpress/
 2. Listens on all network interfaces (`0.0.0.0`)
 3. Accessible to WordPress container via Docker network
 
-### Adminer Container
-
-**File**: [srcs/requirements/adminer/Dockerfile](srcs/requirements/adminer/Dockerfile)
-
-- **Base Image**: Debian Bookworm
-- **Key Components**: PHP 8.2-FPM, Adminer
-- **Port**: 9001 (internal, not exposed)
-- **Purpose**: Web-based database management tool
-
-**What happens on startup:**
-1. Installs PHP-FPM and database drivers
-2. Downloads Adminer (single PHP file)
-3. Configures PHP-FPM on port 9001
-4. Sets proper file permissions
-5. Starts PHP-FPM in foreground
-
 ### Static Website Container
 
 **File**: [srcs/requirements/static/Dockerfile](srcs/requirements/static/Dockerfile)
@@ -462,7 +440,6 @@ docker network inspect inception
 # - wordpress:9000 (from NGINX perspective)
 # - mariadb:3306 (from WordPress perspective)
 # - redis:6379 (from WordPress perspective)
-# - adminer:9001 (for database management)
 # - static:80 (for portfolio site)
 ```
 
@@ -609,7 +586,6 @@ See [srcs/.env.example](srcs/.env.example) for all available variables.
 - [WordPress Documentation](https://wordpress.org/documentation/)
 - [MariaDB Documentation](https://mariadb.com/docs/)
 - [Redis Documentation](https://redis.io/documentation)
-- [Adminer Documentation](https://www.adminer.org/)
 - [OpenSSL Documentation](https://www.openssl.org/docs/)
 
 ---

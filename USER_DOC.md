@@ -7,7 +7,6 @@ This project provides a complete web infrastructure with:
 - **WordPress** - A content management system for building your website
 - **MariaDB** - A database server that stores all your website data
 - **Redis** - A cache server to improve performance
-- **Adminer** - Database management interface
 - **Static Website** - Portfolio showcase
 
 All services run in isolated Docker containers and communicate securely with each other.
@@ -27,7 +26,7 @@ make
 This command will:
 1. Create necessary data directories
 2. Build Docker images
-3. Start all services (WordPress, NGINX, MariaDB, Redis, Adminer, Static Site)
+3. Start all services (WordPress, NGINX, MariaDB, Redis, Static Site)
 
 To start an already-built project in the background:
 
@@ -117,12 +116,11 @@ Check if all containers are active:
 docker ps
 ```
 
-You should see six containers:
+You should see five containers:
 - `wordpress` - Running PHP-FPM
 - `nginx` - Running the web server
 - `mariadb` - Running the database
 - `redis` - Running cache server
-- `adminer` - Running database admin interface
 - `static` - Running portfolio website
 
 ### View Service Logs
@@ -138,7 +136,6 @@ docker compose -f ./srcs/docker-compose.yml logs wordpress
 docker compose -f ./srcs/docker-compose.yml logs nginx
 docker compose -f ./srcs/docker-compose.yml logs mariadb
 docker compose -f ./srcs/docker-compose.yml logs redis
-docker compose -f ./srcs/docker-compose.yml logs adminer
 docker compose -f ./srcs/docker-compose.yml logs static
 
 # Follow logs in real-time
@@ -159,7 +156,6 @@ make logs-db           # View MariaDB logs
 - **WordPress**: Should load the WordPress dashboard
 - **MariaDB**: Verify WordPress can connect (no errors in logs)
 - **Redis**: Should start without errors
-- **Adminer**: Database management available
 - **Static**: Portfolio accessible at `http://localhost:8080`
 
 ---
@@ -173,14 +169,6 @@ Redis improves WordPress performance by caching data.
 - **Port**: 6379 (internal only, not exposed)
 - **Purpose**: Cache management for faster page loads
 - **Access**: Automatically integrated with WordPress
-
-### Adminer
-
-Database management interface for MariaDB administration.
-
-- **Port**: 9001 (internal)
-- **Purpose**: Manage database without command line
-- **Note**: Can be integrated with NGINX for web access (optional)
 
 ### Static Website Portfolio
 
