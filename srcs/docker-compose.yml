@@ -56,16 +56,6 @@ services:
       - inception
     restart: always
 
-  adminer:
-    build: ./requirements/adminer/
-    image: adminer:1337
-    container_name: adminer
-    networks:
-      - inception
-    ports:
-        - 9001:9001
-    restart: always
-
   static:
     build: ./requirements/static/
     image: static:1337
