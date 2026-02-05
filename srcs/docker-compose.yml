@@ -49,7 +49,7 @@ services:
     restart: always
 
   redis:
-    build: ./requirements/redis/
+    build: ./requirements/bonus/redis/
     image: redis:1337
     container_name: redis
     networks:
@@ -57,7 +57,7 @@ services:
     restart: always
 
   static:
-    build: ./requirements/static/
+    build: ./requirements/bonus/static/
     image: static:1337
     container_name: static
     ports:

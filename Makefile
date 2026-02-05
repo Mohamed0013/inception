@@ -20,12 +20,13 @@ stop:
 	docker compose -f $(COMPOSE_FILE) down
 
 clean: stop
-	docker compose -f $(COMPOSE_FILE) down
+	@echo "Clean done"
 
 fclean: stop
 	docker compose -f $(COMPOSE_FILE) down -v --remove-orphans
 	docker system prune -af --volumes
 	sudo rm -rf $(DATA_DIR_WP) $(DATA_DIR_DB)
+#--remove-orphans means remove even the containers created with docker-compose.yml but we remove them (we remove them from the yml file)
 
 re: fclean all
 
