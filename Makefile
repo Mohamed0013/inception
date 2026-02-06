@@ -1,8 +1,10 @@
-.PHONY: all start stop clean fclean re logs
+.PHONY: all start stop clean fclean re logs help ps
 
+# Replace 'your_login' with your actual 42 username
+LOGIN := $(shell whoami)
 COMPOSE_FILE=./srcs/docker-compose.yml
-DATA_DIR_DB=/home/mohdahma/data/db
-DATA_DIR_WP=/home/mohdahma/data/wordpress
+DATA_DIR_DB=/home/$(LOGIN)/data/db
+DATA_DIR_WP=/home/$(LOGIN)/data/wordpress
 
 all: $(DATA_DIR_DB) $(DATA_DIR_WP)
 	docker compose -f $(COMPOSE_FILE) up --build

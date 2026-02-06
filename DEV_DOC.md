@@ -37,7 +37,6 @@ docker compose --version
 .
 ├── Makefile                          # Build and run commands
 ├── README.md                         # Project overview
-├── Assets/                           # Project assets
 ├── secrets/                          # Sensitive data (passwords)
 │   ├── db_password.txt
 │   ├── wp_admin_password.txt
@@ -233,6 +232,8 @@ docker compose -f ./srcs/docker-compose.yml logs static
 
 # Follow logs in real-time
 docker compose -f ./srcs/docker-compose.yml logs -f wordpress
+
+# Or you can use shortcuts from the makefile
 ```
 
 ### Execute Commands in Running Container
@@ -325,13 +326,13 @@ sudo ls /home/mohdahma/data/db/mysql/wordpress/
 
 ### Data Persistence Behavior
 
-| Action | Data Persistence |
-|--------|------------------|
-| `make stop` | ✅ Data persists |
-| `make clean` | ✅ Data persists |
-| `make fclean` | ❌ Data **deleted** (with `sudo rm` in Makefile) |
-| Container crash | ✅ Data persists |
-| Image rebuild | ✅ Data persists |
+| Action            | Data Persistence                                  |
+|-------------------|---------------------------------------------------|
+| `make stop`       | ✅ Data persists                                  |
+| `make clean`      | ✅ Data persists                                  |
+| `make fclean`     | ❌ Data **deleted** (with `sudo rm` in Makefile)  |
+| Container crash   | ✅ Data persists                                  |
+| Image rebuild     | ✅ Data persists                                  |
 
 ---
 
@@ -563,18 +564,18 @@ make
 
 See [srcs/.env.example](srcs/.env.example) for all available variables.
 
-| Variable | Purpose | Example |
-|----------|---------|---------|
-| `LOGIN` | Username for domain | `mohdahma` |
-| `DB_HOST` | Database hostname | `mariadb` |
-| `DB_NAME` | Database name | `wordpress` |
-| `DB_USER` | Database user | `wordpress` |
-| `WP_URL` | WordPress site URL | `https://mohdahma.42.fr` |
-| `WP_ADMIN` | Admin username | `superuser` |
-| `WP_ADMIN_EMAIL` | Admin email | `admin@42.fr` |
-| `WP_TITLE` | Site title | `Inception` |
-| `SSL_CERTIFICATE` | SSL cert path | `/etc/ssl/certs/nginx.crt` |
-| `SSL_CERTIFICATE_KEY` | SSL key path | `/etc/ssl/private/nginx.key` |
+| Variable              | Purpose             | Example                       |
+|-----------------------|---------------------|-------------------------------|
+| `LOGIN`               | Username for domain | `mohdahma`                    |
+| `DB_HOST`             | Database hostname   | `mariadb`                     |
+| `DB_NAME`             | Database name       | `wordpress`                   |
+| `DB_USER`             | Database user       | `wordpress`                   |
+| `WP_URL`              | WordPress site URL  | `https://mohdahma.42.fr`      |
+| `WP_ADMIN`            | Admin username      | `superuser`                   |
+| `WP_ADMIN_EMAIL`      | Admin email         | `admin@42.fr`                 |
+| `WP_TITLE`            | Site title          | `Inception`                   |
+| `SSL_CERTIFICATE`     | SSL cert path       | `/etc/ssl/certs/nginx.crt`    |
+| `SSL_CERTIFICATE_KEY` | SSL key path        | `/etc/ssl/private/nginx.key`  |
 
 ---
 
@@ -596,5 +597,4 @@ See [srcs/.env.example](srcs/.env.example) for all available variables.
 - Services run without root privileges where possible
 - TLS v1.3 is enforced for security
 - Self-signed certificates are intentionally used for development
-- Volumes are bind mounts for easy local file access
 - No FTP server (simplified bonus services)

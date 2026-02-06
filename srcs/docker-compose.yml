@@ -68,6 +68,8 @@ services:
 
 networks:
   inception:
+#docker will create a custom bridge network named inception
+#docker will use the default bridge so they will use ips to connect but they change every time a container restarts !
 
 volumes:
   db:

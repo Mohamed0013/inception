@@ -14,6 +14,10 @@ The infrastructure is composed of multiple services running in separate containe
 
 Each service runs in its own container, communicates through Docker networks, and stores persistent data using Docker volumes.
 
+And in the bonus part we have :
+- **Redis** a wordpress cache manager.
+- **Static** a simple static website container.
+
 ---
 
 ## Project Goals
@@ -37,46 +41,47 @@ Each service runs in its own container, communicates through Docker networks, an
 
 Clone the repository:
 ```bash
-git clone repo link
-cd inception
+git clone repo_link
+cd inception (or the cloned folder name)
+```
+
 Configure environment variables:
 
+```bash
 cd srcs
 cp .env.example .env
-
-⚠️ **Important**: Before editing `.env`, ensure these values match your system:
-
-```bash
 nano .env
 ```
 
+⚠️ **Important**: Before editing `.env`, ensure these values match your system:
+
 **Critical variables that must match your system:**
 
-| Variable | Must Match                 | Example                   |
-|----------|----------------------------|---------------------------|
-| `LOGIN`  | Your actual login name     | `mohdahma`                |
-| `WP_URL` | Domain in `/etc/hosts`     | `https://mohdahma.42.fr`  |
-| `DB_HOST`| Service name (leave as-is) | `mariadb`                 |
-| `DB_NAME`| Service name (leave as-is) | `wordpress`               |
+| Variable | Must Match                 | Example                           |
+|----------|----------------------------|-----------------------------------|
+| `LOGIN`  | Your actual login name     | `your_login` (your 42 username)   |
+| `WP_URL` | Domain in `/etc/hosts`     | `https://your_login.42.fr`        |
+| `DB_HOST`| Service name (leave as-is) | `mariadb`                         |
+| `DB_NAME`| Service name (leave as-is) | `wordpress`                       |
 
 **Before starting, ensure:**
 
-1. Update `/etc/hosts` with your `LOGIN`:
+1. Update `/etc/hosts` with your login:
    ```bash
    sudo nano /etc/hosts
-   # Add this line:
-   127.0.0.1 mohdahma.42.fr
+   # Add this line (replace your_login with your actual username):
+   127.0.0.1 your_login.42.fr
    ```
 
 2. Make sure `.env` has matching values:
    ```env
-   LOGIN=mohdahma
-   WP_URL=https://mohdahma.42.fr
+   LOGIN=your_login
+   WP_URL=https://your_login.42.fr
    ```
 
-3. Update secret passwords:
+3. Create secret passwords:
    ```bash
-   # Edit these files with secure passwords
+   # Create and Edit these files with secure passwords
    nano ../secrets/db_password.txt
    nano ../secrets/wp_admin_password.txt
    nano ../secrets/wp_user_password.txt
@@ -93,32 +98,30 @@ make
 Open your browser and visit:
 
 ```
-https://mohdahma.42.fr
+https://your_login.42.fr
 ```
 
 ⚠️ A browser warning is expected because a self-signed TLS certificate is used.
 
+---
 
+## Project Architecture
 
-Project Architecture
+- Each service has its own Dockerfile
+- Services communicate through a custom Docker network
+- Persistent data is stored using Docker volumes
+- Sensitive data is handled using Docker secrets
 
-Each service has its own Dockerfile
+---
 
-Services communicate through a custom Docker network
+## Technical Choices and Explanations
 
-Persistent data is stored using Docker volumes
-
-Sensitive data is handled using Docker secrets
-
-
-Technical Choices and Explanations
-Docker and Docker Compose
+### Docker and Docker Compose
 
 Docker allows packaging an application with all its dependencies into a container.
 Docker Compose orchestrates multiple containers, defining how they interact, share networks, volumes, and startup order.
 
-
-Virtual Machines vs Docker
+### Virtual Machines vs Docker
 
 | Virtual Machines        | Docker                   |
 | ----------------------- | ------------------------ |
@@ -127,12 +130,10 @@ Virtual Machines vs Docker
 | High resource usage     | Efficient resource usage |
 | Strong isolation        | Process-level isolation  |
 
-Why Docker?
-Docker provides faster deployment, better resource efficiency, and easier scalability compared to virtual machines.
+**Why Docker?**
+Docker provides faster deployment, better resource efficiency, and easier compared to virtual machines.
 
-
-
-Environment Variables vs Docker Secrets
+### Environment Variables vs Docker Secrets
 
 | Environment Variables       | Docker Secrets         |
 | --------------------------- | ---------------------- |
@@ -140,12 +141,10 @@ Environment Variables vs Docker Secrets
 | Easy to leak                | Limited access         |
 | Good for non-sensitive data | Designed for passwords |
 
-Why secrets?
+**Why secrets?**
 Passwords and sensitive data (DB password, admin password) must not be exposed inside images or logs.
 
-
-
-Docker Network vs Host Network
+### Docker Network vs Host Network
 
 | Docker Network          | Host Network       |
 | ----------------------- | ------------------ |
@@ -153,13 +152,12 @@ Docker Network vs Host Network
 | Internal DNS resolution | Direct host access |
 | Secure by default       | Less secure        |
 
-Why Docker networks?
+**Why Docker networks?**
 They allow containers to communicate securely using service names instead of IPs.
 
+### Docker Volumes with Bind Mounts
 
-Docker Volumes with Bind Mounts
-
-The project uses **Docker named volumes** configured with **bind mounts** to store data in `/home/mohdahma/data/`:
+The project uses **Docker named volumes** configured with **bind mounts** to store data in `/home/your_login/data/`:
 
 ```yaml
 volumes:
@@ -168,80 +166,60 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/mohdahma/data/db
+      device: /home/your_login/data/db
 
   wordpress:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/mohdahma/data/wordpress
+      device: /home/your_login/data/wordpress
 ```
 
 **Why this approach?**
 - ✅ Uses Docker named volumes (required by subject)
-- ✅ Stores data in `/home/mohdahma/data/` on host (required by subject)
+- ✅ Stores data in `/home/your_login/data/` on host (required by subject)
 - ✅ Direct host file access for development
 - ✅ Data persists across container restarts
 
 **Data locations:**
-- `db` volume → `/home/mohdahma/data/db/` on host
-- `wordpress` volume → `/home/mohdahma/data/wordpress/` on host
+- `db` volume → `/home/your_login/data/db/` on host
+- `wordpress` volume → `/home/your_login/data/wordpress/` on host
 
-**Your configuration:**
-```yaml
-volumes:
-  db:
-    driver: local
-  wordpress:
-    driver: local
-```
+---
 
-This means:
-- `db` volume → `/var/lib/mysql/` in MariaDB container
-- `wordpress` volume → `/var/www/html/` in WordPress container
-- Docker manages the actual storage location automatically
+## Resources
 
+- [Docker documentation](https://docs.docker.com)
+- [Docker Compose documentation](https://docs.docker.com/compose/)
+- [NGINX documentation](https://nginx.org/en/docs/)
+- [WordPress documentation](https://wordpress.org/documentation/)
+- [OpenSSL documentation](https://www.openssl.org/docs/)
 
+---
 
-Resources
-
-Docker documentation: https://docs.docker.com
-
-Docker Compose documentation: https://docs.docker.com/compose/
-
-NGINX documentation: https://nginx.org/en/docs/
-
-WordPress documentation: https://wordpress.org/documentation/
-
-OpenSSL documentation: https://www.openssl.org/docs/
-
-Use of AI
+## Use of AI
 
 AI tools were used for:
 
-Understanding Docker and networking concepts
-
-Clarifying NGINX and TLS configuration
-
-Improving explanations and documentation clarity
+- Understanding Docker and networking concepts
+- Clarifying NGINX and TLS configuration
+- Improving explanations and documentation clarity
 
 All configuration, code, and architectural decisions were implemented and understood by the project author.
 
-Notes
+---
 
-Only port 443 is exposed for HTTPS access
+## Notes
 
-TLS v1.3 is enforced
+- Only port 443 is exposed for HTTPS access
+- TLS v1.3 is enforced
+- Self-signed certificates are intentionally used
+- No service runs as root unless required
 
-Self-signed certificates are intentionally used
+---
 
-No service runs as root unless required
+## Author
 
-
-
-
-Author :
-
-Mohamed Dahmane (mohdahma)
-42 Network 1337 morocco
+Mohamed Dahmane (mohdahma)  
+42 Network | 1337 Morocco

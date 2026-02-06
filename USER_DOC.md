@@ -17,7 +17,7 @@ All services run in isolated Docker containers and communicate securely with eac
 
 ### Starting the Project
 
-To start the infrastructure:
+To start the infrastructure: (after aplying som changes mentiened in the readme file line 56 to line 88)
 
 ```bash
 make
@@ -61,12 +61,12 @@ make fclean
 ### Opening the Website
 
 1. Open your web browser
-2. Visit: `https://mohdahma.42.fr` (or your configured domain)
+2. Visit: `https://your_login.42.fr` (replace `your_login` with your actual username)
 3. ⚠️ **Browser Warning**: A security warning will appear because we use a self-signed certificate. This is normal and expected. Click "Advanced" and proceed.
 
 ### Accessing the WordPress Admin Panel
 
-1. After the site loads, go to: `https://mohdahma.42.fr/wp-admin`
+1. After the site loads, go to: `https://your_login.42.fr/wp-admin`
 2. Log in with your admin credentials
 
 ---
@@ -85,15 +85,15 @@ Sensitive passwords are stored in files inside the `secrets/` directory:
 
 ### WordPress Admin Login
 
-To access WordPress dashboard at `https://mohdahma.42.fr/wp-admin`:
+To access WordPress dashboard at `https://your_login.42.fr/wp-admin`:
 
-- **Username**: Check `WP_ADMIN` value in `srcs/.env` (default: `superuser`)
+- **Username**: Check `WP_ADMIN` value in `srcs/.env`
 - **Password**: Check `secrets/wp_admin_password.txt`
 
 Example:
 ```
 Username: superuser
-Password: Wpadminpass19
+Password: (content of secrets/wp_admin_password.txt)
 ```
 
 ### Changing Credentials
@@ -152,7 +152,7 @@ make logs-db           # View MariaDB logs
 
 ### Check Service Health
 
-- **NGINX**: Should be accessible at `https://mohdahma.42.fr`
+- **NGINX**: Should be accessible at `https://your_login.42.fr`
 - **WordPress**: Should load the WordPress dashboard
 - **MariaDB**: Verify WordPress can connect (no errors in logs)
 - **Redis**: Should start without errors
@@ -187,9 +187,9 @@ Simple HTML/CSS showcase website.
 
 1. Check if services are running: `docker ps`
 2. View logs: `docker compose -f ./srcs/docker-compose.yml logs`
-3. Ensure the domain `mohdahma.42.fr` is in your `/etc/hosts` file:
+3. Ensure your domain is in your `/etc/hosts` file:
    ```
-   127.0.0.1 mohdahma.42.fr
+   127.0.0.1 your_login.42.fr
    ```
 
 ### WordPress Setup Failed
@@ -208,8 +208,8 @@ This is normal with self-signed certificates. The connection is still secure (TL
 
 Your website files and database are stored locally:
 
-- **WordPress Files**: `/home/mohdahma/data/wordpress/`
-- **Database Files**: `/home/mohdahma/data/db/`
+- **WordPress Files**: `/home/your_login/data/wordpress/`
+- **Database Files**: `/home/your_login/data/db/`
 
 These locations persist even after stopping containers.
 
