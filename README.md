@@ -8,7 +8,7 @@
 The goal of this project is to design and deploy a complete web infrastructure using **Docker** and **Docker Compose**, following strict rules related to security, isolation, and service orchestration.
 
 The infrastructure is composed of multiple services running in separate containers:
-- **NGINX** as a reverse proxy with HTTPS (TLS v1.2 / v1.3)
+- **NGINX** as a reverse proxy with HTTPS (TLS v1.3)
 - **WordPress** with PHP-FPM
 - **MariaDB** as the database server
 
