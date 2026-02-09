@@ -89,6 +89,8 @@ nano .env
 
 **Build and Run:**
 
+change **mohdahma** in the makefile with your home user directory and then :
+
 ```bash
 make
 ```
